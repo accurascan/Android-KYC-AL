@@ -13,6 +13,7 @@
 
     <string name="score_formate">%.2f %%</string>
     <string name="liveness">Liveness</string>
+    <string name="active_liveness">Active Liveness</string>
     <string name="face_match">Face Match</string>
     <string name="usa_dl_result">USA DL Result</string>
     <string name="PDF417_Barcode">PDF417 Barcode</string>

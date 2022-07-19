@@ -1,5 +1,12 @@
 <resources>
 
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="AppThemeActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -144,7 +151,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <!--        <item name="android:layout_weight">0.26</item>-->
-        <item name="android:layout_margin">5dp</item>
+        <item name="android:layout_margin">1dp</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:gravity">center</item>
         <item name="android:paddingStart">10dp</item>
@@ -159,6 +166,18 @@
 
         <!--        <item name="android:orientation">horizontal</item>-->
     </style>
+
+    <style name="ResultButtonLayout1" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">60dp</item>
+        <!--        <item name="android:layout_marginTop">@dimen/_8dp</item>-->
+        <item name="android:layout_marginEnd">60dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+
 
     <style name="ResultButtonLayout" parent="Widget.AppCompat.TextView">
         <item name="android:layout_width">0dp</item>
@@ -175,7 +194,6 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">@dimen/_10dp</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:background">@drawable/btn_bg_red</item>
         <item name="android:layout_marginTop">@dimen/_5dp</item>
         <item name="android:layout_marginBottom">@dimen/_8dp</item>
     </style>

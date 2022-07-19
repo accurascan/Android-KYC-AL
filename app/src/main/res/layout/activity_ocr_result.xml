@@ -73,7 +73,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/layout_button_auth"
+                    android:id="@+id/layout_button_auth1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_12dp"
@@ -82,13 +82,14 @@
                     android:visibility="visible">
 
                     <LinearLayout
-                        android:id="@+id/llLiveness"
-                        style="@style/ResultButtonLayout">
+                        android:id="@+id/llactiveLiveness1"
+                        style="@style/ResultButtonLayout1">
 
                         <LinearLayout
-                            android:id="@+id/btn_liveness"
+                            android:background="@drawable/btn_bg_red"
+                            android:id="@+id/btn_activeliveness"
                             style="@style/ResultButtonSubLayout"
-                            android:onClick="onCLickFaceMatch">
+                            android:onClick="onActiveLivenessClick">
 
                             <ImageView
                                 style="@style/IconLayout"
@@ -99,18 +100,55 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="@string/liveness"
+                                android:text="@string/active_liveness"
                                 android:textAllCaps="true"
                                 android:textColor="@color/white"
                                 android:textSize="@dimen/result_title_text" />
 
                         </LinearLayout>
 
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_button_auth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_12dp"
+                    android:layout_marginEnd="@dimen/_12dp"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <LinearLayout
+                        android:id="@+id/llLiveness"
+                        style="@style/ResultButtonLayout"
+                        >
+
+                        <LinearLayout
+                            android:id="@+id/btn_liveness"
+                            style="@style/ResultButtonSubLayout">
+
+
+                            <com.accurascan.ocr.mrz.customview.CustomTextView
+                                android:id="@+id/tvLiveness"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="@string/liveness"
+                                android:textAllCaps="true"
+                                android:textColor="@color/darkGray"
+                                android:textSize="@dimen/result_title_text" />
+
+
+                        </LinearLayout>
+
                         <com.accurascan.ocr.mrz.customview.CustomTextView
-                            android:id="@+id/tvLivenessScore"
+                            android:id="@+id/tvLivenessResult"
                             style="@style/ScoreText"
-                            android:text="0 %"
                             app:typeface="ALLER_STD_REG" />
+
                     </LinearLayout>
 
                     <LinearLayout
@@ -119,30 +157,27 @@
 
                         <LinearLayout
                             android:id="@+id/btn_fm"
-                            style="@style/ResultButtonSubLayout"
-                            android:onClick="onCLickFaceMatch">
+                            style="@style/ResultButtonSubLayout">
 
-                            <ImageView
-                                style="@style/IconLayout"
-                                android:src="@drawable/ic_biometric" />
 
                             <com.accurascan.ocr.mrz.customview.CustomTextView
+                                android:id="@+id/tvFaceMatch"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:gravity="center"
                                 android:text="@string/face_match"
                                 android:textAllCaps="true"
-                                android:textColor="@color/white"
+                                android:textColor="@color/darkGray"
                                 android:textSize="@dimen/result_title_text" />
 
                         </LinearLayout>
 
                         <com.accurascan.ocr.mrz.customview.CustomTextView
-                            android:id="@+id/tvFaceMatchScore"
+                            android:id="@+id/tvFaceMatchResult"
                             style="@style/ScoreText"
-                            android:text="0 %"
                             app:typeface="ALLER_STD_REG" />
+
                     </LinearLayout>
 
                 </LinearLayout>

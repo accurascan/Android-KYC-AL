@@ -1,8 +1,11 @@
 package com.accurascan.accurasdk.sample;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -25,28 +28,24 @@ import com.accurascan.ocr.mrz.model.PDF417Data;
 import com.accurascan.ocr.mrz.model.RecogResult;
 import com.bumptech.glide.Glide;
 import com.docrecog.scan.RecogType;
-import com.facedetection.FMCameraScreenCustomization;
-import com.facedetection.SelfieFMCameraActivity;
-import com.facedetection.model.AccuraFMCameraModel;
 import com.inet.facelock.callback.FaceCallback;
 import com.inet.facelock.callback.FaceDetectionResult;
 import com.inet.facelock.callback.FaceHelper;
 
-public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMatchCallBack, FaceCallback {
+public class OcrResultActivity extends BaseActivity implements FaceCallback {
 
     Bitmap face1;
     private final int ACCURA_LIVENESS_CAMERA = 101;
-    private final int ACCURA_FACEMATCH_CAMERA = 102;
     TableLayout mrz_table_layout, front_table_layout, back_table_layout, usdl_table_layout, pdf417_table_layout, bank_table_layout;
 
     ImageView ivUserProfile, ivUserProfile2, iv_frontside, iv_backside;
-    LinearLayout ly_back, ly_front;
-    View ly_auth_container, ly_mrz_container, ly_front_container, ly_back_container, ly_security_container,
+    LinearLayout ly_back, ly_front,liveness_container,btn_liveness,btn_fm;
+    View ly_auth_container, ly_btn_container, ly_mrz_container, ly_front_container, ly_back_container, ly_security_container,
             ly_pdf417_container, ly_usdl_container, dl_plate_lout, ly_bank_container, ly_barcode_container;
     View loutImg, loutImg2, loutFaceImageContainer;
     private FaceHelper faceHelper;
-    private TextView tvFaceMatchScore, tvLivenessScore, tv_security;
-    private boolean isFaceMatch = false, isLiveness = false;
+
+    private TextView  tv_security,tvFaceMatchResult,tvLivenessResult;
 
     protected void onCreate(Bundle savedInstanceState) {
         if (getIntent().getIntExtra("app_orientation", 1) != 0) {
@@ -58,6 +57,8 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         setContentView(R.layout.activity_ocr_result);
 
         initUI();
+       // performClick(true);
+
         RecogType recogType = RecogType.detachFrom(getIntent());
 
         if (recogType == RecogType.OCR) {
@@ -70,6 +71,7 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
             ly_back.setVisibility(View.GONE);
             loutFaceImageContainer.setVisibility(View.GONE);
             ly_auth_container.setVisibility(View.GONE);
+            ly_btn_container.setVisibility(View.GONE);
 
             CardDetails cardDetails = CardDetails.getCardDetails();
             setBankData(cardDetails);
@@ -112,6 +114,7 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
 //            ivUserProfile.setVisibility(View.GONE);
             loutFaceImageContainer.setVisibility(View.GONE);
             ly_auth_container.setVisibility(View.GONE);
+            ly_btn_container.setVisibility(View.GONE);
 
             OcrData ocrData = OcrData.getOcrResult();
 
@@ -161,6 +164,7 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
             ly_back.setVisibility(View.GONE);
             loutFaceImageContainer.setVisibility(View.GONE);
             ly_auth_container.setVisibility(View.GONE);
+            ly_btn_container.setVisibility(View.GONE);
 
             OcrData ocrData = OcrData.getOcrResult();
 
@@ -180,16 +184,21 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         ivUserProfile = findViewById(R.id.ivUserProfile);
         ivUserProfile2 = findViewById(R.id.ivUserProfile2);
         loutFaceImageContainer = findViewById(R.id.lyt_face_image_container);
+        tvLivenessResult = findViewById(R.id.tvLivenessResult);
+        tvFaceMatchResult = findViewById(R.id.tvFaceMatchResult);
         loutImg = findViewById(R.id.lyt_img_cover);
         loutImg2 = findViewById(R.id.lyt_img_cover2);
-        tvLivenessScore = findViewById(R.id.tvLivenessScore);
-        tvFaceMatchScore = findViewById(R.id.tvFaceMatchScore);
-        loutImg2.setVisibility(View.GONE);
+
+        tvFaceMatchResult = findViewById(R.id.tvFaceMatchResult);
+        tvLivenessResult = findViewById(R.id.tvLivenessResult);
+
 
         tv_security = findViewById(R.id.tv_security);
-
+        btn_liveness = findViewById(R.id.btn_liveness);
+        btn_fm = findViewById(R.id.btn_fm);
         ly_back = findViewById(R.id.ly_back);
         ly_front = findViewById(R.id.ly_front);
+        liveness_container = findViewById(R.id.llLiveness);
         iv_frontside = findViewById(R.id.iv_frontside);
         iv_backside = findViewById(R.id.iv_backside);
 
@@ -200,6 +209,7 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         usdl_table_layout = findViewById(R.id.usdl_table_layout);
         bank_table_layout = findViewById(R.id.bank_table_layout);
 
+        ly_btn_container = findViewById(R.id.layout_button_auth1);
         ly_auth_container = findViewById(R.id.layout_button_auth);
         ly_mrz_container = findViewById(R.id.ly_mrz_container);
         ly_front_container = findViewById(R.id.ly_front_container);
@@ -211,8 +221,7 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         ly_bank_container = findViewById(R.id.ly_bank_container);
         ly_barcode_container = findViewById(R.id.barcode_lout);
 
-        tvFaceMatchScore.setVisibility(View.GONE);
-        tvLivenessScore.setVisibility(View.GONE);
+
         ly_security_container.setVisibility(View.GONE);
         ly_front_container.setVisibility(View.GONE);
         ly_back_container.setVisibility(View.GONE);
@@ -588,6 +597,7 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         } else {
             loutFaceImageContainer.setVisibility(View.GONE);
             ly_auth_container.setVisibility(View.GONE);
+            ly_btn_container.setVisibility(View.GONE);
         }
     }
 
@@ -598,7 +608,6 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
 
     public void handleVerificationSuccessResult(final AccuraVerificationResult result) {
         if (result != null) {
-//            showProgressDialog();
             Runnable runnable = new Runnable() {
                 public void run() {
 
@@ -611,8 +620,11 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
                             }
                             if (result.getLivenessResult().getLivenessStatus()) {
                                 Bitmap face2 = result.getFaceBiometrics();
-                                Glide.with(OcrResultActivity.this).load(face2).centerCrop().into(ivUserProfile2);
                                 if (face2 != null) {
+                                    loutImg2.setVisibility(View.VISIBLE);
+                                    Glide.with(OcrResultActivity.this).load(face2).centerCrop().into(ivUserProfile2);
+                                    ivUserProfile2.setVisibility(View.VISIBLE);
+
                                     faceHelper.setMatchImage(face2);
                                 }
                                 setLivenessData(result.getLivenessResult().getLivenessScore() * 100 + "");
@@ -627,32 +639,20 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         }
     }
 
-    public void handleVerificationSuccessResult(final AccuraFMCameraModel result) {
-        if (result != null) {
-//            showProgressDialog();
-            Runnable runnable = new Runnable() {
-                public void run() {
-                    setLivenessData("0.00");
-                    if (faceHelper!=null && face1 != null) {
-                        faceHelper.setInputImage(face1);
-                    }
 
-                    if (result.getFaceBiometrics() != null) {
-                        Bitmap nBmp = result.getFaceBiometrics();
-                        faceHelper.setMatchImage(nBmp);
-                    }
-                }
-            };
-            new Handler().postDelayed(runnable, 100);
-        }
-    }
 
     //method for setting liveness data
     //parameter to pass : livenessScore
     private void setLivenessData(String livenessScore) {
-        tvLivenessScore.setText(String.format("%s %%", livenessScore.length() > 5 ? livenessScore.substring(0, 5) : livenessScore));
-        tvLivenessScore.setVisibility(View.VISIBLE);
-        tvFaceMatchScore.setVisibility(View.VISIBLE);
+        tvLivenessResult.setText(String.format("%s %%", livenessScore.length() > 5 ? livenessScore.substring(0, 5) : livenessScore));
+        tvLivenessResult.setVisibility(View.VISIBLE);
+    }
+
+
+    private void setFaceMatchData(float faceMatchScore) {
+        String fm_score = String.valueOf(faceMatchScore);
+        tvFaceMatchResult.setText(String.format("%s %%", fm_score.length() > 5 ? fm_score.substring(0, 5) : fm_score));
+        tvFaceMatchResult.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -668,16 +668,6 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
                     handleVerificationSuccessResult(result);
                 } else {
                     Toast.makeText(this, result.getErrorMessage(), Toast.LENGTH_SHORT).show();
-                }
-            } else if (requestCode == 102) {
-                AccuraFMCameraModel result = data.getParcelableExtra("Accura.fm");
-                if (result == null) {
-                    return;
-                }
-                if (result.getStatus().equals("1")) {
-                    handleVerificationSuccessResult(result);
-                } else {
-                    Toast.makeText(this, "Retry...", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -743,25 +733,15 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         finish();
     }
 
-    public void onCLickFaceMatch(View view) {
-        if (view.getId() == R.id.btn_fm) {
-            isFaceMatch = true;
-            isLiveness = false;
-        } else if (view.getId() == R.id.btn_liveness) {
-            isFaceMatch = false;
-            isLiveness = true;
+    public void onActiveLivenessClick(View view) {
+        if(view.getId() == R.id.btn_activeliveness){
+            if (faceHelper == null) {
+                faceHelper = new FaceHelper(this);
+                faceHelper.setFaceMatchCallBack(this);
+                faceHelper.initEngine();
+            }
+            openLivenessCamera();
         }
-        if (faceHelper == null) {
-            faceHelper = new FaceHelper(this);
-        } else {
-            performClick(isFaceMatch, isLiveness);
-        }
-
-    }
-
-    private void performClick(boolean isFaceMatch, boolean isLiveness) {
-        if (isFaceMatch) openCamera();
-        else if (isLiveness) openLivenessCamera();
     }
 
     private void openLivenessCamera() {
@@ -781,62 +761,48 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
         livenessCustomization.feedBackHeadStraightMessage = "Keep Your Head Straight";
         livenessCustomization.feedBackBlurFaceMessage = "Blur Detected Over Face";
         livenessCustomization.feedBackGlareFaceMessage = "Glare Detected";
+        livenessCustomization.feedBackLowLightMessage = "Low light detected";
+        livenessCustomization.feedBackProcessingMessage = "Processing...";
+        livenessCustomization.feedbackDialogMessage = "Loading...";
+        livenessCustomization.setLowLightTolerence(30);
         livenessCustomization.setBlurPercentage(80);
         livenessCustomization.setGlarePercentage(-1, -1);
+        livenessCustomization.showlogo = 1;
+        livenessCustomization.logoIcon = R.drawable.ic_scan;
+        livenessCustomization.feedBackStartMessage = getString(R.string.inside_oval);
+        livenessCustomization.feedBackLookLeftMessage = getString(R.string.left_info);
+        livenessCustomization.feedBackLookRightMessage = getString(R.string.right_info);
+        livenessCustomization.feedBackOralInfoMessage = getString(R.string.oral_info);
 
-        Intent intent = SelfieCameraActivity.getCustomIntent(this, livenessCustomization, "your liveness url");
+        livenessCustomization.livenessAlertSound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/raw/accura_liveness_verified");
+        livenessCustomization.livenessVerifiedAlertSound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/raw/accura_liveness_verified");
+        livenessCustomization.livenessVerifiedAnimation = R.drawable.approved_sign;
+
+        // Left-right animation
+        livenessCustomization.setLeftRightAnimationVisibility = true;
+        livenessCustomization.livenessLeftMoveAnimation = R.drawable.accura_liveness_face;
+        livenessCustomization.livenessRightMoveAnimation = R.drawable.accura_liveness_face;
+
+        // Left-right arrow icon
+        livenessCustomization.setLookLeftRightIconVisible = true;
+        livenessCustomization.lookLeftIcon = R.drawable.ic_left_arrow;
+        livenessCustomization.lookRightIcon = R.drawable.ic_right_arrow;
+
+        // Oral verification
+        livenessCustomization.enableOralVerification = true;
+        livenessCustomization.voiceIcon = R.drawable.ic_mic;
+        livenessCustomization.codeTextSize = 30;
+        livenessCustomization.codeTextColor = Color.WHITE;
+
+
+
+        Intent intent = SelfieCameraActivity.getLivenessCameraIntent(this, livenessCustomization, "your liveness url");
         startActivityForResult(intent, ACCURA_LIVENESS_CAMERA);
-    }
-
-    private void openCamera() {
-
-        FMCameraScreenCustomization cameraScreenCustomization = new FMCameraScreenCustomization();
-
-        cameraScreenCustomization.backGroundColor = getResources().getColor(R.color.fm_camera_Background);
-        cameraScreenCustomization.closeIconColor = getResources().getColor(R.color.fm_camera_CloseIcon);
-        cameraScreenCustomization.feedbackBackGroundColor = getResources().getColor(R.color.fm_camera_feedbackBg);
-        cameraScreenCustomization.feedbackTextColor = getResources().getColor(R.color.fm_camera_feedbackText);
-        cameraScreenCustomization.feedbackTextSize = 18;
-        cameraScreenCustomization.feedBackframeMessage = "Frame Your Face";
-        cameraScreenCustomization.feedBackAwayMessage = "Move Phone Away";
-        cameraScreenCustomization.feedBackOpenEyesMessage = "Keep Your Eyes Open";
-        cameraScreenCustomization.feedBackCloserMessage = "Move Phone Closer";
-        cameraScreenCustomization.feedBackCenterMessage = "Move Phone Center";
-        cameraScreenCustomization.feedBackMultipleFaceMessage = "Multiple Face Detected";
-        cameraScreenCustomization.feedBackHeadStraightMessage = "Keep Your Head Straight";
-        cameraScreenCustomization.feedBackBlurFaceMessage = "Blur Detected Over Face";
-        cameraScreenCustomization.feedBackGlareFaceMessage = "Glare Detected";
-        cameraScreenCustomization.setBlurPercentage(80);
-        cameraScreenCustomization.setGlarePercentage(-1, -1);
-
-        Intent intent = SelfieFMCameraActivity.getCustomIntent(this, cameraScreenCustomization);
-        startActivityForResult(intent, ACCURA_FACEMATCH_CAMERA);
-
-//        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        File f = new File(Environment.getExternalStorageDirectory(), "temp.jpg");
-//        Uri uriForFile = FileProvider.getUriForFile(
-//                OcrResultActivity.this,
-//                getPackageName() + ".provider",
-//                f
-//        );
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-//            intent.putExtra("android.intent.extras.CAMERA_FACING", android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT);
-//            intent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
-//            intent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
-//        } else {
-//            intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
-//        }
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, uriForFile);
-//        startActivityForResult(intent, 102);
-
     }
 
     @Override
     public void onFaceMatch(float score) {
-        tvFaceMatchScore.setText(String.format(getString(R.string.score_formate), score));
-        tvLivenessScore.setVisibility(View.VISIBLE);
-        tvFaceMatchScore.setVisibility(View.VISIBLE);
+        setFaceMatchData(score);
     }
 
     @Override
@@ -851,14 +817,10 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
 
     @Override
     public void onInitEngine(int i) {
-        if (i != -1) {
-            performClick(isFaceMatch, isLiveness);
-        }
     }
 
     @Override
     public void onLeftDetect(FaceDetectionResult faceDetectionResult) {
-        faceHelper.onLeftDetect(faceDetectionResult);
     }
 
     @Override
@@ -872,12 +834,10 @@ public class OcrResultActivity extends BaseActivity implements FaceHelper.FaceMa
                 e.printStackTrace();
             }
         }
-        faceHelper.onRightDetect(faceDetectionResult);
     }
 
     @Override
     public void onExtractInit(int i) {
 
     }
-
 }

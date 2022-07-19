@@ -1,8 +1,8 @@
-# Accura KYC Android SDK - OCR, Face Match & Liveness Check
-Android KYC SDK - OCR &amp; Face Match <br/><br/>
+# Accura KYC Android SDK - OCR & Active Liveness Check along with Face Match 
+Android KYC SDK - OCR &amp; Active Liveness <br/><br/>
 Accura OCR is used for Optical character recognition.<br/><br/>
-Accura Face Match is used for Matching 2 Faces. Source and Target. It matches the User Image from a Selfie vs User Image in document.<br/><br/>
-Accura Authentication is used for your customer verification and authentication.Unlock the True Identity of Your Users with 3D Selfie Technology<br/><br/>
+Accura Face Match is used for Matching 2 Faces. It matches the User Image from a Selfie vs User Image in document.<br/><br/>
+Accura Active Liveness is used for your customer verification and authentication.Unlock the True Identity of Your Users with 3D Selfie Technology<br/><br/>
 
 
 Below steps to setup Accura SDK's to your project.
@@ -24,7 +24,7 @@ Below steps to setup Accura SDK's to your project.
 
 #### Step 2. Add the token to `gradle.properties`:
 
-    authToken=jp_ssguccab6c5ge2l4jitaj92ek2
+    authToken=jp_trshh3t111grpigcd3iru1joa1
 
 #### Step 3: Add the dependency:
     Set Accura SDK as a dependency to our app/build.gradle file.
@@ -61,12 +61,11 @@ Below steps to setup Accura SDK's to your project.
     }
     dependencies {
         ...
-        // for Accura OCR
-        implementation 'com.github.accurascan:AccuraOCR:3.1.1'
-        // for Accura Face Match
-        implementation 'com.github.accurascan:AccuraFaceMatch:3.1.1'
-        // for liveness
-		implementation 'com.github.accurascan:Liveness-Android:3.1.1'
+        // For Accura OCR
+        implementation 'com.github.accurascan:AccuraOCR:3.3.3'
+        
+        // For Accura Active Liveness along with Face Match
+        implementation 'com.github.accurascan:AccuraActiveLiveness:3.1.3'
     }
 
 #### Step 4: Add files to project assets folder:
@@ -74,6 +73,7 @@ Below steps to setup Accura SDK's to your project.
     Create "assets" folder under app/src/main and Add license file in to assets folder.
     - key.license // for Accura OCR
     - accuraface.license // for Accura Face Match
+    - accuraactiveliveness.license // for Accura Active Liveness
     Generate your Accura license from https://accurascan.com/developer/dashboard
 
 ## 1. Setup Accura OCR
@@ -212,6 +212,9 @@ private void initCamera() {
         // 3. ID card MRZ document   - MRZDocumentType.ID_CARD_MRZ 
         // 4. Visa MRZ document      - MRZDocumentType.VISA_MRZ    
         cameraView.setMRZDocumentType(mrzDocumentType);
+	//set the country code of country whose MRZ you want to scan
+        //set it to "all" for MRZ of all countries 
+        cameraView.setMRZCountryCodeList("all");
     }
     cameraView.setRecogType(recogType)
             .setView(linearLayout) // To add camera view
@@ -455,7 +458,152 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
 }
 ```
 
-## 2. Setup Accura Face Match
+
+
+## 2. Active Liveness Check along with Face Match
+* Require `accuraface.license` & `accuraactiveliveness.license` to implement Active Liveness in your app
+Contact AccuraScan at contact@accurascan.com for Liveness SDK or API(liveness url)
+
+#### Step 1 : Add following code in Manifest.
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+#### Step 2 : Open camera for Active Liveness Detectcion & FaceMatch 
+
+    Must have to Grant camera permission
+
+    private final static int ACCURA_LIVENESS_CAMERA = 101;
+
+    // To customize your screen theme and feed back messages
+    LivenessCustomization livenessCustomization = new LivenessCustomization();
+
+    livenessCustomization.backGroundColor = getResources().getColor(R.color.livenessBackground);
+    livenessCustomization.closeIconColor = getResources().getColor(R.color.livenessCloseIcon);
+    livenessCustomization.feedbackBackGroundColor = Color.TRANSPARENT;
+    livenessCustomization.feedbackTextColor = Color.BLACK;
+    livenessCustomization.feedbackTextSize = 18;
+    livenessCustomization.feedBackframeMessage = "Frame Your Face";
+    livenessCustomization.feedBackAwayMessage = "Move Phone Away";
+    livenessCustomization.feedBackOpenEyesMessage = "Keep Your Eyes Open";
+    livenessCustomization.feedBackCloserMessage = "Move Phone Closer";
+    livenessCustomization.feedBackCenterMessage = "Move Phone Center";
+    livenessCustomization.feedBackMultipleFaceMessage = "Multiple Face Detected";
+    livenessCustomization.feedBackHeadStraightMessage = "Keep Your Head Straight";
+    livenessCustomization.feedBackStartMessage = "Put your face inside the oval";
+    livenessCustomization.feedBackLookLeftMessage = "Look over your left shoulder";
+    livenessCustomization.feedBackLookRightMessage = "Look over your right shoulder";
+    livenessCustomization.feedBackOralInfoMessage = "Say each digits out loud";
+    livenessCustomization.feedBackBlurFaceMessage = "Blur Detected Over Face";
+    livenessCustomization.feedBackGlareFaceMessage = "Glare Detected";
+    livenessCustomization.feedBackLowLightMessage = "Low light detected";
+    
+    // 0 for clean face and 100 for Blurry face or set it -1 to remove blur filter
+    livenessCustomization.setBlurPercentage(80/*blurPercentage*/); // To allow blur on face
+                                                    
+    // Set min and max percentage for glare or set it -1 to remove glare filter
+    livenessCustomization.setGlarePercentage(6/*glareMinPercentage*/, 99/*glareMaxPercentage*/);
+
+    // 0 for full dark document and 100 for full bright document
+    //livenessCustomization.setLowLightTolerence(int /*tolerance*/30);
+
+    //To customize the Feedback Processing message when ActiveLiveness is successfull
+    livenessCustomization.feedBackProcessingMessage = "Processing...";
+
+    //To customize the Loading message of Dialog Box when ActiveLiveness is successfull
+    livenessCustomization.feedbackDialogMessage = "Loading...";
+
+    //To show logo at the bottom of liveness window.
+    //0 for removing logo & 1 for showing the logo
+    livenessCustomization.showlogo = 1;
+
+    //To change the logo at the bottom of liveness window.
+    livenessCustomization.logoIcon = R.drawable.your_logo;
+
+    //To customize Alert Sound in ActiveLiveness  
+    livenessCustomization.livenessAlertSound = Your Uri;
+
+    //To customize Verified Sound in ActiveLiveness  
+    livenessCustomization.livenessVerifiedAlertSound = Your Uri;
+  
+    //To customize Verified Animation when Liveness is successful
+    livenessCustomization.livenessVerifiedAnimation = R.drawable.approved_sign;
+
+    // Show/Hide Left-Right animation in liveness window 
+    livenessCustomization.setLeftRightAnimationVisibility = true/false;
+
+    //To customize Animation of looking left in Liveness Window     
+    //livenessCustomization.livenessLeftMoveAnimation = R.drawable.your_animation;
+
+    //To customize Animation of looking right in Liveness Window     
+    //livenessCustomization.livenessRightMoveAnimation = R.drawable.your_animation;    
+
+    // To Show/Hide these icon in livneess window
+    livenessCustomization.setLookLeftRightIconVisible = true/false;
+    //Set your custom looking Left/right arrow icon in liveness window
+    livenessCustomization.lookLeftIcon = R.drawable.ic_left_arrow;
+    livenessCustomization.lookRightIcon = R.drawable.ic_right_arrow;
+
+    //To enable Oral Verification in ActiveLiveness set it to true otherwise false
+    livenessCustomization.enableOralVerification = true;
+    //To customize Voice Icon for Oral Verification in Liveness Window
+    livenessCustomization.voiceIcon = R.drawable.your_image;
+    //To customize Text Size  
+    livenessCustomization.codeTextSize = 30;
+    //To customize Text Color
+    livenessCustomization.codeTextColor = Color.WHITE;
+   
+
+    // must have to call SelfieCameraActivity.getLivenessCameraIntent() to create intent
+    Intent intent = SelfieCameraActivity.getLivenessCameraIntent(this, livenessCustomization, "your_url");
+    startActivityForResult(intent, ACCURA_LIVENESS_CAMERA);
+
+
+    // Handle accura liveness result.
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == ACCURA_LIVENESS_CAMERA && data != null) {
+                AccuraVerificationResult result = data.getParcelableExtra("Accura.liveness");
+                if (result == null) {
+                    return;
+                }
+                if (result.getStatus().equals("1")) {
+                    // result get bitmap of face by using following code
+                    Bitmap face2 = result.getFaceBiometrics();
+                  
+                    if (faceHelper == null) {
+                         //Initialize FaceHelper to get FaceMatch Score 
+                         faceHelper = new FaceHelper(this);
+                         // Make sure to implement com.inet.facelock.callback.FaceCallback to your activity
+                         faceHelper.setFaceMatchCallBack(this);
+                         faceHelper.initEngine();
+                    }
+
+                    //face image is obtained from document
+                    faceHelper.setInputImage(face1);
+                    //face image obtained from liveness window
+                    faceHelper.setMatchImage(face2);
+                    
+                    //And Retrive the facematch socre on overriden method 'public void onFaceMatch(float matchScore)' of FaceCallback
+
+                    double livenessScore = result.getLivenessResult().getLivenessScore() * 100.0;
+                    Toast.makeText(this, "Liveness Score : " + livenessScore, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, result.getStatus() + " " + result.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+## 3. Setup Accura Face Match
 * Require `accuraface.license` to implement AccuraFaceMatch SDK in to your app
 
 #### Step 1 : Add following code in Manifest.
@@ -466,30 +614,39 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
     </manifest>
 
 #### Step 2 : Open auto capture camera
-    FMCameraScreenCustomization cameraScreenCustomization = new FMCameraScreenCustomization();
+    LivenessCustomization livenessCustomization = new LivenessCustomization();
     
-    cameraScreenCustomization.backGroundColor = getResources().getColor(R.color.fm_camera_Background);
-    cameraScreenCustomization.closeIconColor = getResources().getColor(R.color.fm_camera_CloseIcon);
-    cameraScreenCustomization.feedbackBackGroundColor = getResources().getColor(R.color.fm_camera_feedbackBg);
-    cameraScreenCustomization.feedbackTextColor = getResources().getColor(R.color.fm_camera_feedbackText);
-    cameraScreenCustomization.feedbackTextSize = 18;
-    cameraScreenCustomization.feedBackframeMessage = "Frame Your Face";
-    cameraScreenCustomization.feedBackAwayMessage = "Move Phone Away";
-    cameraScreenCustomization.feedBackOpenEyesMessage = "Keep Your Eyes Open";
-    cameraScreenCustomization.feedBackCloserMessage = "Move Phone Closer";
-    cameraScreenCustomization.feedBackCenterMessage = "Move Phone Center";
-    cameraScreenCustomization.feedBackMultipleFaceMessage = "Multiple Face Detected";
-    cameraScreenCustomization.feedBackHeadStraightMessage = "Keep Your Head Straight";
-    cameraScreenCustomization.feedBackBlurFaceMessage = "Blur Detected Over Face";
-    cameraScreenCustomization.feedBackGlareFaceMessage = "Glare Detected";
+    livenessCustomization.backGroundColor = getResources().getColor(R.color.fm_camera_Background);
+    livenessCustomization.closeIconColor = getResources().getColor(R.color.fm_camera_CloseIcon);
+    livenessCustomization.feedbackBackGroundColor = getResources().getColor(R.color.fm_camera_feedbackBg);
+    livenessCustomization.feedbackTextColor = getResources().getColor(R.color.fm_camera_feedbackText);
+    livenessCustomization.feedbackTextSize = 18;
+    livenessCustomization.feedBackframeMessage = "Frame Your Face";
+    livenessCustomization.feedBackAwayMessage = "Move Phone Away";
+    livenessCustomization.feedBackOpenEyesMessage = "Keep Your Eyes Open";
+    livenessCustomization.feedBackCloserMessage = "Move Phone Closer";
+    livenessCustomization.feedBackCenterMessage = "Move Phone Center";
+    livenessCustomization.feedBackMultipleFaceMessage = "Multiple Face Detected";
+    livenessCustomization.feedBackHeadStraightMessage = "Keep Your Head Straight";
+    livenessCustomization.feedBackBlurFaceMessage = "Blur Detected Over Face";
+    livenessCustomization.feedBackGlareFaceMessage = "Glare Detected";
+
+    //To customize the Feedback Processing message when ActiveLiveness is successfull
+    livenessCustomization.feedBackProcessingMessage = "Processing...";
+
+    //To customize the Loading message of Dialog Box when ActiveLiveness is successfull
+    livenessCustomization.feedbackDialogMessage = "Loading...";
 
     // 0 for clean face and 100 for Blurry face or set it -1 to remove blur filter
-    cameraScreenCustomization.setBlurPercentage(80/*blurPercentage*/); // To allow blur on face
+    livenessCustomization.setBlurPercentage(80/*blurPercentage*/); // To allow blur on face
                                                     
     // Set min and max percentage for glare or set it -1 to remove glare filter
-	cameraScreenCustomization.setGlarePercentage(6/*glareMinPercentage*/, 99/*glareMaxPercentage*/);
+    livenessCustomization.setGlarePercentage(6/*glareMinPercentage*/, 99/*glareMaxPercentage*/);
+
+    // 0 for full dark document and 100 for full bright document
+    //livenessCustomization.setLowLightTolerence(int /*tolerance*/30);
     
-    Intent intent = SelfieFMCameraActivity.getCustomIntent(this, cameraScreenCustomization);
+    Intent intent = SelfieFMCameraActivity.getCustomIntent(this, livenessCustomization);
     startActivityForResult(intent, ACCURA_FACEMATCH_CAMERA);
     
     // Handle accura fm camera result.
@@ -517,11 +674,14 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
 
     Important Grant Camera and storage Permission.
 
-    must have to implements FaceCallback, FaceHelper.FaceMatchCallBack to your activity
+    
     ImageView image1,image2;
 
     // Initialized facehelper in onCreate.
     FaceHelper helper = new FaceHelper(this);
+    helper.initEngine();
+    // Make sure to implement com.inet.facelock.callback.FaceCallback to your activity
+    helper.setFaceMatchCallBack(this);
 
     TextView tvFaceMatch = findViewById(R.id.tvFM);
     tvFaceMatch.setOnClickListener(new OnClickListener() {
@@ -546,7 +706,7 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
 
     @Override
     public void onFaceMatch(float score) {
-        // get face match score
+        // To get face match score
         System.out.println("Match Score : " + ss + " %");
     }
 
@@ -572,15 +732,13 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
     
     @Override
     public void onLeftDetect(FaceDetectionResult faceResult) {
-        // must have to call helper method onLeftDetect(faceResult) to get faceMatch score.
-        helper.onLeftDetect(faceResult);
+        // to get detected FaceRect from image
     }
 
     //call if face detect
     @Override
     public void onRightDetect(FaceDetectionResult faceResult) {
-        // must have to call helper method onRightDetect(faceResult) to get faceMatch score.
-        helper.onRightDetect(faceResult);
+        // To get detected FaceRect from image
     }
 
     @Override
@@ -588,7 +746,7 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
     }
 
     And take a look ActivityFaceMatch.java for full working example.
-    
+
 #### Step 4 : Simple Usage to face match in your app.
 
     // Just add FaceMatchActivity to your manifest:
@@ -597,94 +755,6 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
     // Start Intent to open activity
     Intent intent = new Intent(this, FaceMatchActivity.class);
     startActivity(intent);
-
-## 3. Liveness Check
-
-Contact AccuraScan at contact@accurascan.com for Liveness SDK or API
-
-#### Step 1 : Add following code in Manifest.
-
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
-
-    <application
-        ...
-        android:networkSecurityConfig="@xml/network_security_config"
-        >
-
-     </application>
-     
-    Note : 'android:networkSecurityConfig="@xml/network_security_config"' setup will permit clear text traffic   
-
-#### Step 2 :  Add following code to your Application class or MainActivity for hostname verification
-
-    new HostnameVerifier() {
-        @Override
-        public boolean verify(String hostname, SSLSession session) {
-            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-            return hv.verify("your url host name", session);
-        }
-    };
-
-#### Step 3 : Open camera for liveness Detectcion.
-
-    Must have to Grant camera permission
-
-    private final static int ACCURA_LIVENESS_CAMERA = 100;
-
-    // To customize your screen theme and feed back messages
-    LivenessCustomization livenessCustomization = new LivenessCustomization();
-
-    livenessCustomization.backGroundColor = getResources().getColor(R.color.livenessBackground);
-    livenessCustomization.closeIconColor = getResources().getColor(R.color.livenessCloseIcon);
-    livenessCustomization.feedbackBackGroundColor = Color.TRANSPARENT;
-    livenessCustomization.feedbackTextColor = Color.BLACK;
-    livenessCustomization.feedbackTextSize = 18;
-    livenessCustomization.feedBackframeMessage = "Frame Your Face";
-    livenessCustomization.feedBackAwayMessage = "Move Phone Away";
-    livenessCustomization.feedBackOpenEyesMessage = "Keep Your Eyes Open";
-    livenessCustomization.feedBackCloserMessage = "Move Phone Closer";
-    livenessCustomization.feedBackCenterMessage = "Move Phone Center";
-    livenessCustomization.feedBackMultipleFaceMessage = "Multiple Face Detected";
-    livenessCustomization.feedBackHeadStraightMessage = "Keep Your Head Straight";
-    livenessCustomization.feedBackBlurFaceMessage = "Blur Detected Over Face";
-    livenessCustomization.feedBackGlareFaceMessage = "Glare Detected";
-    
-    // 0 for clean face and 100 for Blurry face or set it -1 to remove blur filter
-    livenessCustomization.setBlurPercentage(80/*blurPercentage*/); // To allow blur on face
-                                                    
-    // Set min and max percentage for glare or set it -1 to remove glare filter
-    livenessCustomization.setGlarePercentage(6/*glareMinPercentage*/, 99/*glareMaxPercentage*/);
-
-    // must have to call SelfieCameraActivity.getCustomIntent() to create intent
-    Intent intent = SelfieCameraActivity.getCustomIntent(this, livenessCustomization, "your_url");
-    startActivityForResult(intent, ACCURA_LIVENESS_CAMERA);
-
-
-    // Handle accura liveness result.
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == ACCURA_LIVENESS_CAMERA && data != null) {
-                AccuraVerificationResult result = data.getParcelableExtra("Accura.liveness");
-                if (result == null) {
-                    return;
-                }
-                if (result.getStatus().equals("1")) {
-                    // result get bitmap of face by using following code
-                    Bitmap bitmap = result.getFaceBiometrics();
-                    double livenessScore = result.getLivenessResult().getLivenessScore() * 100.0;
-                    Toast.makeText(this, "Liveness Score : " + livenessScore, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, result.getStatus() + " " + result.getErrorMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
 
 ## ProGuard
 
