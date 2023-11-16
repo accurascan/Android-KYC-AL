@@ -448,7 +448,7 @@ public class OcrResultActivity extends BaseActivity implements FaceCallback {
             addLayout("Correct Document check No.", recogResult.correctdocchecksum);
             addLayout("Country", recogResult.country);
             addLayout("Nationality", recogResult.nationality);
-            String s = (recogResult.sex.equals("M")) ? "Male" : ((recogResult.sex.equals("F")) ? "Female" : recogResult.sex);
+            String s = (recogResult.sex.equals("M")) ? "Male" : ((recogResult.sex.equals("F")) ? "Female" : ((recogResult.sex.equals("X")) ? "Other" : recogResult.sex));
             addLayout("Sex", s);
             addLayout("Date of Birth", recogResult.birth);
             addLayout("Birth Check No.", recogResult.birthchecksum);
@@ -768,28 +768,14 @@ public class OcrResultActivity extends BaseActivity implements FaceCallback {
         livenessCustomization.setBlurPercentage(80);
         livenessCustomization.setGlarePercentage(-1, -1);
         livenessCustomization.showlogo = 1;
-        livenessCustomization.logoIcon = R.drawable.ic_scan;
+//        livenessCustomization.logoIcon = R.drawable.your_logo;
         livenessCustomization.feedBackStartMessage = getString(R.string.inside_oval);
-        livenessCustomization.feedBackLookLeftMessage = getString(R.string.left_info);
-        livenessCustomization.feedBackLookRightMessage = getString(R.string.right_info);
         livenessCustomization.feedBackOralInfoMessage = getString(R.string.oral_info);
 
-        livenessCustomization.livenessAlertSound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/raw/accura_liveness_verified");
         livenessCustomization.livenessVerifiedAlertSound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/raw/accura_liveness_verified");
         livenessCustomization.livenessVerifiedAnimation = R.drawable.approved_sign;
 
-        // Left-right animation
-        livenessCustomization.setLeftRightAnimationVisibility = true;
-        livenessCustomization.livenessLeftMoveAnimation = R.drawable.accura_liveness_face;
-        livenessCustomization.livenessRightMoveAnimation = R.drawable.accura_liveness_face;
-
-        // Left-right arrow icon
-        livenessCustomization.setLookLeftRightIconVisible = true;
-        livenessCustomization.lookLeftIcon = R.drawable.ic_left_arrow;
-        livenessCustomization.lookRightIcon = R.drawable.ic_right_arrow;
-
         // Oral verification
-        livenessCustomization.enableOralVerification = true;
         livenessCustomization.voiceIcon = R.drawable.ic_mic;
         livenessCustomization.codeTextSize = 30;
         livenessCustomization.codeTextColor = Color.WHITE;
