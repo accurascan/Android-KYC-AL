@@ -64,7 +64,7 @@ Below steps to setup AccuraScan's SDK to your project.
         implementation 'com.github.accurascan:AccuraOCR:5.1.0'
         
         // For Accura Active Liveness along with Face Match
-        implementation 'com.github.accurascan:AccuraActiveLiveness:3.2.2'
+        implementation 'com.github.accurascan:AccuraActiveLiveness:3.2.3'
     }
 
 #### Step 4: Add files to project assets folder:
