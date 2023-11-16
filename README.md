@@ -1,11 +1,10 @@
-# Accura KYC Android SDK - OCR & Active Liveness Check along with Face Match 
-Android KYC SDK - OCR &amp; Active Liveness <br/><br/>
-Accura OCR is used for Optical character recognition.<br/><br/>
-Accura Face Match is used for Matching 2 Faces. It matches the User Image from a Selfie vs User Image in document.<br/><br/>
-Accura Active Liveness is used for your customer verification and authentication.Unlock the True Identity of Your Users with 3D Selfie Technology<br/><br/>
+# AccuraScan's Android SDK for KYC & ID Verification - OCR, Face Biometrics and Liveness Check
 
+1. High Accuracy OCR (Optical Character Recognition) Includes English, Latin, Chinese, Korean and Japanese Languages.
+2. Face Biometrics Is Used for Matching Both The Source And The Target Image. It Matches the User's Selfie Image with The Image on The Document.
+3. User Authentication and Liveness Check Is Used for Customer Verification and Authentication. It Protects You from Identity Theft & Spoofing Attacks Through the Use of Active and Passive Selfie Technology for Liveness Check.
 
-Below steps to setup Accura SDK's to your project.
+Below steps to setup AccuraScan's SDK to your project.
 
 ## Install SDK in to your App
 
@@ -24,7 +23,7 @@ Below steps to setup Accura SDK's to your project.
 
 #### Step 2. Add the token to `gradle.properties`:
 
-    authToken=jp_trshh3t111grpigcd3iru1joa1
+    authToken=jp_45kf9tvkijvd9c7cf34mehj1b6
 
 #### Step 3: Add the dependency:
     Set Accura SDK as a dependency to our app/build.gradle file.
@@ -62,10 +61,10 @@ Below steps to setup Accura SDK's to your project.
     dependencies {
         ...
         // For Accura OCR
-        implementation 'com.github.accurascan:AccuraOCR:3.3.3'
+        implementation 'com.github.accurascan:AccuraOCR:5.1.0'
         
         // For Accura Active Liveness along with Face Match
-        implementation 'com.github.accurascan:AccuraActiveLiveness:3.1.3'
+        implementation 'com.github.accurascan:AccuraActiveLiveness:3.2.2'
     }
 
 #### Step 4: Add files to project assets folder:
@@ -212,8 +211,9 @@ private void initCamera() {
         // 3. ID card MRZ document   - MRZDocumentType.ID_CARD_MRZ 
         // 4. Visa MRZ document      - MRZDocumentType.VISA_MRZ    
         cameraView.setMRZDocumentType(mrzDocumentType);
-	//set the country code of country whose MRZ you want to scan
-        //set it to "all" for MRZ of all countries 
+        
+        // Pass 'all' for accepting MRZs of all countries
+        // or you can pass respective country codes of countries whose MRZ you want to accept. Eg:- 'IND', 'USA', 'TUN', etc.
         cameraView.setMRZCountryCodeList("all");
     }
     cameraView.setRecogType(recogType)
@@ -468,8 +468,6 @@ Contact AccuraScan at contact@accurascan.com for Liveness SDK or API(liveness ur
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <uses-feature android:name="android.hardware.camera" />
@@ -497,8 +495,6 @@ Contact AccuraScan at contact@accurascan.com for Liveness SDK or API(liveness ur
     livenessCustomization.feedBackMultipleFaceMessage = "Multiple Face Detected";
     livenessCustomization.feedBackHeadStraightMessage = "Keep Your Head Straight";
     livenessCustomization.feedBackStartMessage = "Put your face inside the oval";
-    livenessCustomization.feedBackLookLeftMessage = "Look over your left shoulder";
-    livenessCustomization.feedBackLookRightMessage = "Look over your right shoulder";
     livenessCustomization.feedBackOralInfoMessage = "Say each digits out loud";
     livenessCustomization.feedBackBlurFaceMessage = "Blur Detected Over Face";
     livenessCustomization.feedBackGlareFaceMessage = "Glare Detected";
@@ -526,32 +522,12 @@ Contact AccuraScan at contact@accurascan.com for Liveness SDK or API(liveness ur
     //To change the logo at the bottom of liveness window.
     livenessCustomization.logoIcon = R.drawable.your_logo;
 
-    //To customize Alert Sound in ActiveLiveness  
-    livenessCustomization.livenessAlertSound = Your Uri;
-
     //To customize Verified Sound in ActiveLiveness  
     livenessCustomization.livenessVerifiedAlertSound = Your Uri;
   
     //To customize Verified Animation when Liveness is successful
     livenessCustomization.livenessVerifiedAnimation = R.drawable.approved_sign;
 
-    // Show/Hide Left-Right animation in liveness window 
-    livenessCustomization.setLeftRightAnimationVisibility = true/false;
-
-    //To customize Animation of looking left in Liveness Window     
-    //livenessCustomization.livenessLeftMoveAnimation = R.drawable.your_animation;
-
-    //To customize Animation of looking right in Liveness Window     
-    //livenessCustomization.livenessRightMoveAnimation = R.drawable.your_animation;    
-
-    // To Show/Hide these icon in livneess window
-    livenessCustomization.setLookLeftRightIconVisible = true/false;
-    //Set your custom looking Left/right arrow icon in liveness window
-    livenessCustomization.lookLeftIcon = R.drawable.ic_left_arrow;
-    livenessCustomization.lookRightIcon = R.drawable.ic_right_arrow;
-
-    //To enable Oral Verification in ActiveLiveness set it to true otherwise false
-    livenessCustomization.enableOralVerification = true;
     //To customize Voice Icon for Oral Verification in Liveness Window
     livenessCustomization.voiceIcon = R.drawable.your_image;
     //To customize Text Size  
@@ -646,7 +622,7 @@ Contact AccuraScan at contact@accurascan.com for Liveness SDK or API(liveness ur
     // 0 for full dark document and 100 for full bright document
     //livenessCustomization.setLowLightTolerence(int /*tolerance*/30);
     
-    Intent intent = SelfieFMCameraActivity.getCustomIntent(this, livenessCustomization);
+    Intent intent = SelfieCameraActivity.getFaceMatchCameraIntent(this, livenessCustomization);
     startActivityForResult(intent, ACCURA_FACEMATCH_CAMERA);
     
     // Handle accura fm camera result.
@@ -654,8 +630,8 @@ Contact AccuraScan at contact@accurascan.com for Liveness SDK or API(liveness ur
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == ACCURA_LIVENESS_CAMERA && data != null) {
-                AccuraFMCameraModel result = data.getParcelableExtra("Accura.fm");
+            if (requestCode == ACCURA_FACEMATCH_CAMERA && data != null) {
+               AccuraVerificationResult result = data.getParcelableExtra("Accura.fm");
                 if (result == null) {
                     return;
                 }
